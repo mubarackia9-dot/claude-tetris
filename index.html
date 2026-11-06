@@ -9,11 +9,19 @@
 <body>
   <button id="theme-toggle" type="button" aria-label="Cambiar entre modo claro y oscuro">☀️ Claro</button>
   <h1 class="game-title">TETRIS</h1>
+  <div class="mode-select" role="group" aria-label="Modo de juego">
+    <button id="mode-classic" type="button" aria-pressed="true">Clásico</button>
+    <button id="mode-challenge" type="button" aria-pressed="false">Desafío: 40 líneas</button>
+  </div>
   <div class="wrapper">
     <div class="game-container">
       <canvas id="board" width="300" height="600"></canvas>
 
       <aside class="panel">
+        <div class="panel-section hidden" id="timer-section">
+          <span class="label">TIEMPO</span>
+          <span class="value" id="timer">2:00</span>
+        </div>
         <div class="panel-section">
           <span class="label">SCORE</span>
           <span class="value" id="score">0</span>

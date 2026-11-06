@@ -24,6 +24,10 @@ python -m http.server 8000   # then http://localhost:8000
 - **Scoring/speed**: `LINE_SCORES[cleared] * level`; soft drop +1/row, hard drop +2/row; level = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
 - **Rendering**: `draw()` redraws everything each frame (grid, board, ghost at alpha 0.2, current piece). `drawBlock` is shared by the main board and the next-piece preview (`drawNext`, 4×4 grid of 30px on a 120px canvas).
 
+## Modes
+
+`mode` (`'classic'` | `'challenge'`) survives `init()`; `setMode()` switches it and restarts. Challenge = `CHALLENGE` constant (40 lines in 120 s): `loop` decrements `timeLeft` by `dt` (so pause excludes it) and ends with TIEMPO AGOTADO at 0; `lockPiece` checks the win before `spawn()` and sets `current = null`, so `draw()` must tolerate a null `current`. All endings go through `endGame(title, detail, won)`.
+
 ## Theme
 
 Colors live in CSS variables (`:root` = dark default, `:root[data-theme="light"]` = light). `setTheme()` in game.js sets `data-theme`, persists to `localStorage`, caches `--grid` into `gridColor` for `drawGrid`, and repaints (needed while paused/game over).
@@ -31,4 +35,4 @@ Colors live in CSS variables (`:root` = dark default, `:root[data-theme="light"]
 ## Constraints
 
 - Changing `COLS`, `ROWS`, or `BLOCK` requires updating `<canvas id="board">` `width`/`height` in `index.html` to `COLS*BLOCK` × `ROWS*BLOCK`.
-- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`) must stay in sync with `index.html`.
+- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`, `mode-classic`, `mode-challenge`, `timer-section`, `timer`) must stay in sync with `index.html`.

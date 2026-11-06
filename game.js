@@ -28,6 +28,8 @@ const PIECES = [
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
+const CHALLENGE = { targetLines: 40, timeMs: 120000 };
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -40,10 +42,15 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const themeBtn = document.getElementById('theme-toggle');
+const timerSection = document.getElementById('timer-section');
+const timerEl = document.getElementById('timer');
+const modeClassicBtn = document.getElementById('mode-classic');
+const modeChallengeBtn = document.getElementById('mode-challenge');
 
 let gridColor = '#22222e';
+let mode = 'classic';
 
-let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId, timeLeft;
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -141,6 +148,12 @@ function softDrop() {
 function lockPiece() {
   merge();
   clearLines();
+  if (mode === 'challenge' && lines >= CHALLENGE.targetLines) {
+    current = null;
+    const used = formatTime(CHALLENGE.timeMs - timeLeft);
+    endGame('¡COMPLETADO!', `Tiempo: ${used} · Puntuación: ${score.toLocaleString()}`, true);
+    return;
+  }
   spawn();
 }
 
@@ -149,14 +162,26 @@ function spawn() {
   next = randomPiece();
   if (collide(current.shape, current.x, current.y)) {
     while (collide(current.shape, current.x, current.y)) current.y--;
-    endGame();
+    endGame('GAME OVER', lossDetail());
   }
   drawNext();
 }
 
+function lossDetail() {
+  const scoreText = `Puntuación: ${score.toLocaleString()}`;
+  return mode === 'challenge'
+    ? `Líneas: ${lines}/${CHALLENGE.targetLines} · ${scoreText}`
+    : scoreText;
+}
+
+function formatTime(ms) {
+  const total = Math.ceil(ms / 1000);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
 function updateHUD() {
   scoreEl.textContent = score.toLocaleString();
-  linesEl.textContent = lines;
+  linesEl.textContent = mode === 'challenge' ? `${lines}/${CHALLENGE.targetLines}` : lines;
   levelEl.textContent = level;
 }
 
@@ -198,6 +223,8 @@ function draw() {
     for (let c = 0; c < COLS; c++)
       drawBlock(ctx, c, r, board[r][c], BLOCK);
 
+  if (!current) return;
+
   // ghost
   const gy = ghostY();
   for (let r = 0; r < current.shape.length; r++)
@@ -222,12 +249,13 @@ function drawNext() {
       drawBlock(nextCtx, offX + c, offY + r, shape[r][c], NB);
 }
 
-function endGame() {
+function endGame(title, detail, won = false) {
   gameOver = true;
   cancelAnimationFrame(animId);
   draw();
-  overlayTitle.textContent = 'GAME OVER';
-  overlayScore.textContent = `Puntuación: ${score.toLocaleString()}`;
+  overlayTitle.textContent = title;
+  overlayTitle.classList.toggle('win', won);
+  overlayScore.textContent = detail;
   overlay.classList.remove('hidden');
 }
 
@@ -235,11 +263,13 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    overlay.classList.add('hidden');
     lastTime = performance.now();
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
     overlayTitle.textContent = 'PAUSA';
+    overlayTitle.classList.remove('win');
     overlayScore.textContent = '';
     overlay.classList.remove('hidden');
   }
@@ -248,6 +278,15 @@ function togglePause() {
 function loop(ts) {
   const dt = ts - lastTime;
   lastTime = ts;
+  if (mode === 'challenge') {
+    // rAF puede entregar un ts anterior a performance.now() en el primer frame
+    timeLeft = Math.max(0, timeLeft - Math.max(0, dt));
+    timerEl.textContent = formatTime(timeLeft);
+    if (timeLeft === 0) {
+      endGame('TIEMPO AGOTADO', lossDetail());
+      return;
+    }
+  }
   dropAccum += dt;
   if (dropAccum >= dropInterval) {
     dropAccum = 0;
@@ -271,6 +310,8 @@ function init() {
   gameOver = false;
   dropInterval = 1000;
   dropAccum = 0;
+  timeLeft = CHALLENGE.timeMs;
+  timerEl.textContent = formatTime(timeLeft);
   lastTime = performance.now();
   next = randomPiece();
   spawn();
@@ -307,12 +348,30 @@ document.addEventListener('keydown', e => {
 
 restartBtn.addEventListener('click', init);
 
+function setMode(newMode) {
+  mode = newMode;
+  modeClassicBtn.setAttribute('aria-pressed', String(mode === 'classic'));
+  modeChallengeBtn.setAttribute('aria-pressed', String(mode === 'challenge'));
+  timerSection.classList.toggle('hidden', mode !== 'challenge');
+  init();
+}
+
+modeClassicBtn.addEventListener('click', () => {
+  setMode('classic');
+  modeClassicBtn.blur();
+});
+
+modeChallengeBtn.addEventListener('click', () => {
+  setMode('challenge');
+  modeChallengeBtn.blur();
+});
+
 function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   themeBtn.textContent = theme === 'light' ? '🌙 Oscuro' : '☀️ Claro';
   try { localStorage.setItem('theme', theme); } catch (e) {}
   gridColor = getComputedStyle(document.documentElement).getPropertyValue('--grid').trim() || gridColor;
-  if (current && next) { draw(); drawNext(); }
+  if (board && next) { draw(); drawNext(); }
 }
 
 themeBtn.addEventListener('click', () => {

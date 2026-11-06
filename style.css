@@ -63,6 +63,35 @@ body {
   margin-bottom: 16px;
 }
 
+/* ---- Selector de modo ---- */
+.mode-select {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.mode-select button {
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.mode-select button:hover {
+  border-color: var(--accent);
+}
+
+.mode-select button[aria-pressed="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--btn-text);
+}
+
 .wrapper {
   position: relative;
 }
@@ -94,6 +123,10 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.panel-section.hidden {
+  display: none;
 }
 
 .label {
@@ -173,6 +206,10 @@ kbd {
   font-weight: 800;
   letter-spacing: 4px;
   color: var(--danger);
+}
+
+#overlay-title.win {
+  color: var(--accent);
 }
 
 #overlay-score {
