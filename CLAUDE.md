@@ -32,7 +32,11 @@ python -m http.server 8000   # then http://localhost:8000
 
 Colors live in CSS variables (`:root` = dark default, `:root[data-theme="light"]` = light). `setTheme()` in game.js sets `data-theme`, persists to `localStorage`, caches `--grid` into `gridColor` for `drawGrid`, and repaints (needed while paused/game over).
 
+## Records
+
+Bloque `// ---- Records ----` al final de game.js. `localStorage['tetrisRecords']` = `{ top: [{name, score, lines, mode, date}] (máx 5, desc), bestCombo, maxLines }`; `loadRecords()` valida y cae a defaults ante JSON inválido. Combo = bloqueos consecutivos que limpian ≥1 línea (`trackCombo` desde `clearLines`). Hooks: `init()` → `recordsOnInit()` (resetea combo, oculta UI de records y la pantalla de inicio, pone `started = true`); `endGame()` → `recordsOnEnd()` (actualiza bestCombo/maxLines, muestra formulario de nombre si entra en top 5 y la tabla). Al cargar, `showStartScreen()` muestra `#start-screen` sin RAF; el keydown ignora todo hasta `started` y cuando el target es un `<input>`. Nombres se renderizan con `textContent`.
+
 ## Constraints
 
 - Changing `COLS`, `ROWS`, or `BLOCK` requires updating `<canvas id="board">` `width`/`height` in `index.html` to `COLS*BLOCK` × `ROWS*BLOCK`.
-- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`, `mode-classic`, `mode-challenge`, `timer-section`, `timer`) must stay in sync with `index.html`.
+- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`, `mode-classic`, `mode-challenge`, `timer-section`, `timer`, records: `start-screen`, `play-btn`, `start-records`, `start-records-stats`, `overlay-records`, `record-msg`, `record-form`, `record-name`, `over-records`, `over-records-stats`; botones `.records-reset`) must stay in sync with `index.html`.

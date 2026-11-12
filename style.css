@@ -254,3 +254,148 @@ kbd {
 #theme-toggle:hover {
   border-color: var(--accent);
 }
+
+/* ---- Records ---- */
+:root {
+  --record-highlight: rgba(122, 162, 247, 0.22);
+  --record-row-border: #2a2a3a;
+}
+
+:root[data-theme="light"] {
+  --record-highlight: rgba(59, 91, 219, 0.15);
+  --record-row-border: #dde0ec;
+}
+
+.records {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.records.hidden,
+.record-form.hidden {
+  display: none;
+}
+
+.records-title {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  color: var(--accent);
+}
+
+.records-table {
+  border-collapse: collapse;
+  font-size: 12px;
+  min-width: 260px;
+}
+
+.records-table th {
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--label);
+  font-weight: 600;
+  padding: 4px 6px;
+  text-align: left;
+}
+
+.records-table td {
+  padding: 4px 6px;
+  border-top: 1px solid var(--record-row-border);
+  text-align: left;
+  color: var(--text);
+}
+
+.records-table td:nth-child(3) {
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.records-table tr.records-highlight td {
+  background: var(--record-highlight);
+  font-weight: 700;
+}
+
+.records-table td.records-empty {
+  text-align: center;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.records-stats {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.records-msg {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.records-msg:empty {
+  display: none;
+}
+
+.record-form {
+  display: flex;
+  gap: 6px;
+}
+
+#record-name {
+  background: var(--board-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+  width: 150px;
+  user-select: text;
+}
+
+#record-name:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+#record-save,
+#play-btn {
+  background: var(--accent);
+  color: var(--btn-text);
+  border: none;
+  border-radius: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+#play-btn {
+  margin-top: 8px;
+  padding: 10px 36px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+#record-save:hover,
+#play-btn:hover {
+  background: var(--accent-hover);
+}
+
+.records-reset {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.records-reset:hover {
+  background: var(--danger);
+  color: var(--btn-text);
+}
