@@ -20,13 +20,17 @@ python -m http.server 8000   # then http://localhost:8000
 - **Cell encoding**: board is `ROWS × COLS` matrix; `0` = empty, `1–7` = piece type. Piece shapes in `PIECES` store their own type index as cell values, so `merge()` copies shape values straight into the board and `COLORS[i]` maps them to colors. Adding a piece type means extending `PIECES`, `COLORS`, and the `* 7` in `randomPiece()`.
 - **Rotation**: `rotateCW` (transpose + reverse) then `tryRotate` tests horizontal kicks `[0,-1,1,-2,2]` via `collide`. Not SRS.
 - **Loop**: `requestAnimationFrame`-driven `loop(ts)` accumulates `dropAccum`; on exceeding `dropInterval`, piece falls or `lockPiece()` runs (`merge` → `clearLines` → `spawn`). `spawn()` colliding immediately triggers `endGame()`.
-- **Pause/game over** cancel the RAF via `animId`; unpause resets `lastTime` and restarts `loop`. A single `#overlay` element is reused for both PAUSA and GAME OVER.
-- **Scoring/speed**: `LINE_SCORES[cleared] * level`; soft drop +1/row, hard drop +2/row; level = `floor(lines/10)+1`; `dropInterval = max(100, 1000 - (level-1)*90)`.
+- **Pause/game over** cancel the RAF via `animId`; unpause resets `lastTime` and restarts `loop`. `#overlay` is only for endings (GAME OVER / TIEMPO AGOTADO / COMPLETADO); pause uses `#pause-menu` (see Pause menu).
+- **Scoring/speed**: `LINE_SCORES[cleared] * level`; soft drop +1/row, hard drop +2/row; level = `max(baseLevel, floor(lines/10)+1)`; `dropInterval = max(100, 1000 - (level-1)*90)`.
 - **Rendering**: `draw()` redraws everything each frame (grid, board, ghost at alpha 0.2, current piece). `drawBlock` is shared by the main board and the next-piece preview (`drawNext`, 4×4 grid of 30px on a 120px canvas).
 
 ## Modes
 
 `mode` (`'classic'` | `'challenge'`) survives `init()`; `setMode()` switches it and restarts. Challenge = `CHALLENGE` constant (40 lines in 120 s): `loop` decrements `timeLeft` by `dt` (so pause excludes it) and ends with TIEMPO AGOTADO at 0; `lockPiece` checks the win before `spawn()` and sets `current = null`, so `draw()` must tolerate a null `current`. All endings go through `endGame(title, detail, won)`.
+
+## Pause menu
+
+`P`/`Escape` call `togglePause()`, which opens/closes `#pause-menu` (Reanudar, Reiniciar, Ver controles, Nivel inicial 1–10). While paused, game keys are ignored: `handlePauseMenuKey` traps Tab inside the menu and swallows Space (so it can't resume by accident; Enter activates buttons). Focus goes to Reanudar on open; Escape on `#start-level` is left to the select. Resuming blurs focus inside the menu, sets `dropAccum = 0` and ignores game keys for `RESUME_GRACE_MS` (150 ms) via `inputBlockedUntil`. `startLevel` is persisted in `localStorage` key `startLevel`; `init()` copies it into `baseLevel` (changes apply next game) and derives `level`/`dropInterval` from it. `init()` also closes the menu.
 
 ## Theme
 
@@ -35,4 +39,4 @@ Colors live in CSS variables (`:root` = dark default, `:root[data-theme="light"]
 ## Constraints
 
 - Changing `COLS`, `ROWS`, or `BLOCK` requires updating `<canvas id="board">` `width`/`height` in `index.html` to `COLS*BLOCK` × `ROWS*BLOCK`.
-- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`, `mode-classic`, `mode-challenge`, `timer-section`, `timer`) must stay in sync with `index.html`.
+- DOM element IDs referenced in `game.js` (`board`, `next-canvas`, `score`, `lines`, `level`, `overlay`, `overlay-title`, `overlay-score`, `restart-btn`, `theme-toggle`, `mode-classic`, `mode-challenge`, `timer-section`, `timer`, `pause-menu`, `pause-resume`, `pause-restart`, `pause-controls-toggle`, `pause-controls`, `start-level`) must stay in sync with `index.html`.
