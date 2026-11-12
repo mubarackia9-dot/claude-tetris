@@ -7,7 +7,18 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <button id="theme-toggle" type="button" aria-label="Cambiar entre modo claro y oscuro">☀️ Claro</button>
+  <div class="top-controls">
+    <label class="skin-picker">
+      <span class="skin-label">Skin</span>
+      <select id="skin-select" aria-label="Apariencia de los bloques">
+        <option value="retro">Retro</option>
+        <option value="neon">Neon</option>
+        <option value="pastel">Pastel</option>
+        <option value="pixel">Pixel art</option>
+      </select>
+    </label>
+    <button id="theme-toggle" type="button" aria-label="Cambiar entre modo claro y oscuro">☀️ Claro</button>
+  </div>
   <h1 class="game-title">TETRIS</h1>
   <div class="mode-select" role="group" aria-label="Modo de juego">
     <button id="mode-classic" type="button" aria-pressed="true">Clásico</button>
